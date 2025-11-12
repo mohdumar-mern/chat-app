@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import app from "./app.js";
+import server from "./app.js";
 import connectDB from "./config/db.js";
 
 // Load environment variables early
@@ -14,7 +14,7 @@ const startServer = async () => {
     await connectDB();
 
     // Start Express server
-    const server = app.listen(PORT, () => {
+    const app = server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
 
@@ -22,14 +22,14 @@ const startServer = async () => {
     process.on("unhandledRejection", (err) => {
       console.error(`Unhandled Rejection: ${err.message}`);
       console.error(err.stack);
-      server.close(() => process.exit(1));
+      app.close(() => process.exit(1));
     });
 
     // Handle uncaught exceptions (runtime errors not caught anywhere)
     process.on("uncaughtException", (err) => {
       console.error(`Uncaught Exception: ${err.message}`);
       console.error(err.stack);
-      server.close(() => process.exit(1));
+      app.close(() => process.exit(1));
     });
 
   } catch (err) {
