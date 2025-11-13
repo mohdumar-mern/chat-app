@@ -1,49 +1,37 @@
-import express from 'express';
-import cors from 'cors'
-import http from 'http'
-import { Server } from 'socket.io'
-import morgan from 'morgan'
-import cookieParser from 'cookie-parser'
+require('dotenv').config();
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+const { Server } = require('socket.io');
 
-import authRoutes from './routes/authRoutes.js'
-import userRoutes from './routes/userRoutes.js'
-import messagesRoutes from './routes/messageRoutes.js'
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/users');
+const messagesRoutes = require('./routes/messages');
 
-import User from './models/userModels.js';
-import Conversation from './models/conversationModel.js';
-import Message from './models/messageModel.js';
+const User = require('./models/User');
+const Conversation = require('./models/Conversation');
+const Message = require('./models/Message');
 
 const app = express();
-const server = http.createServer(app);
-
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan("dev"))
-app.use(cookieParser());
 
+app.use('/auth', authRoutes);
+app.use('/users', usersRoutes);
+app.use('/conversations', messagesRoutes);
 
-
-// ✅ Use Auth Routes
-app.use('/api/v1', authRoutes);
-app.use('/api/v1/', userRoutes);
-pp.use('/conversations', messagesRoutes);
-
-// ✅ Initialize Socket.IO with CORS
+const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: '*', // or your frontend URL e.g. "http://localhost:3000"
-    methods: ['GET', 'POST'],
-  },
+  cors: { origin: '*' }
 });
 
-// In-memory store for online users
+// In-memory map userId -> socketId (helps multi-instance approaches should use Redis)
 const onlineUsers = new Map();
 
-
-// ✅ Socket.IO connection event
 io.on('connection', (socket) => {
   console.log('socket connected', socket.id);
+
   // client emits "user:online" after login with payload { userId }
   socket.on('user:online', async ({ userId }) => {
     onlineUsers.set(userId, socket.id);
@@ -119,16 +107,9 @@ io.on('connection', (socket) => {
     }
     console.log('socket disconnected', socket.id);
   });
-
-
-
- 
 });
 
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+const PORT = process.env.PORT || 4000;
+connectDB(process.env.MONGO_URI).then(() => {
+  server.listen(PORT, () => console.log(`Server listening ${PORT}`));
 });
-
-
-export default server;
