@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import User from "../models/userModels.js";
 import HandleError from "../utils/handleError.js";
+import { generateToken } from "../utils/generateToken.js";
 
 // ========================================
 // @desc    Register a new user
@@ -44,6 +45,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 // ========================================
 export const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password, phone } = req.body;
+  console.log(req.body)
 
   // Validate input
   if ((!email && !phone) || !password) {
@@ -66,18 +68,26 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   }
 
   // Create token or response (depending on your setup)
-  // const token = user.getJwtToken();
+    const token = generateToken(user._id);
+    const cookieExpireDays = Number(process.env.EXPIRED_COOKIES) || 7;
 
+    
+  res.cookie("token", token, {
+    expires: new Date(Date.now() + cookieExpireDays * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
   res.status(200).json({
     success: true,
     message: "Login successful",
-    // token,
-    user: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-    },
+    token,
+    // user: {
+    //   _id: user._id,
+    //   name: user.name,
+    //   email: user.email,
+    //   phone: user.phone,
+    // },
   });
 });
 
