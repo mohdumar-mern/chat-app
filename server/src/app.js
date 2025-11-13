@@ -3,11 +3,18 @@ import cors from 'cors'
 import http from 'http'
 import { Server} from 'socket.io'
 
+import authRoutes from './routes/authRoutes.js'
+
 const app = express();
 const server = http.createServer(app);
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+// ✅ Use Auth Routes
+app.use('/api/v1', authRoutes);
 
 
 // ✅ Initialize Socket.IO with CORS
