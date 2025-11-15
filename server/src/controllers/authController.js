@@ -82,12 +82,12 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     success: true,
     message: "Login successful",
     token,
-    // user: {
-    //   _id: user._id,
-    //   name: user.name,
-    //   email: user.email,
-    //   phone: user.phone,
-    // },
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    },
   });
 });
 

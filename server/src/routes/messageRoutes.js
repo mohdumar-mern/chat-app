@@ -1,7 +1,7 @@
 import express from 'express'
-import { protect } from '../middlewares/authMiddleware';
-import Message from '../models/messageModel';
-import Conversation from '../models/conversationModel';
+import { protect } from '../middlewares/authMiddleware.js';
+import Message from '../models/messageModel.js';
+// import Conversation from '../models/conversationModel.js';
 const router = express.Router();
 
 

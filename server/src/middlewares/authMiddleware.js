@@ -5,7 +5,8 @@ import User from "../models/userModels.js";
 import HandleError from "../utils/handleError.js";
 export const protect = asyncHandler(async (req, res, next) => {
   try {
-    const {token} = req.cookies ;
+    const {token} = req.cookies || req.headers.authorization ;
+    console.log(token)
     // Check if token exists
     if (!token) {
       return next(new HandleError("Token not found", 401));

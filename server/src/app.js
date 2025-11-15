@@ -16,7 +16,14 @@ import Message from './models/messageModel.js';
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // ✅ exact frontend URL
+    credentials: true, // ✅ allow cookies
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"))
@@ -27,12 +34,12 @@ app.use(cookieParser());
 // ✅ Use Auth Routes
 app.use('/api/v1', authRoutes);
 app.use('/api/v1/', userRoutes);
-pp.use('/conversations', messagesRoutes);
+app.use('/conversations', messagesRoutes);
 
 // ✅ Initialize Socket.IO with CORS
 const io = new Server(server, {
   cors: {
-    origin: '*', // or your frontend URL e.g. "http://localhost:3000"
+    origin: 'http://localhost:5173', // or your frontend URL e.g. "http://localhost:3000"
     methods: ['GET', 'POST'],
   },
 });
